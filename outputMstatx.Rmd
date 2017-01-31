@@ -1,5 +1,5 @@
 ---
-title: "output Mstatx"
+title: "summarize multiple alignment scores"
 output: html_document
 ---
 
