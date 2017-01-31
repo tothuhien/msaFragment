@@ -1,0 +1,39 @@
+---
+title: "output Mstatx"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(magrittr)
+source("functions.R")
+```
+
+This script aims to summerize the output scores of MstatX by sliding windows.
+Given a set multiple alignments, MstatX compute the multiple alignment score of each site. 
+The output of MstatX is a file contains 2 columns which specify the order of each site (1,2, ...) and the score of the corresponding site.
+
+Given a fragment size, this script computes the scores of all fragments using a sliding window of that size. We can use these scores to spot out the most or the least varied region within the input sequences.
+
+If the input sequences contain continuous sites (e.g gene)
+
+```{r continuous sliding windows}
+win <- 300
+step <- 10
+result <- intervalScore("score",win,step)
+ggplot(data=result,aes(x=Start,y=Score)) +geom_line() + xlab("window start position") + ylab("Score") + ggtitle(paste0("window size = ",win,", step = ",step))
+```
+
+
+If the input sequences contain sites from discontinous positions (e.g snp), then a position file specifiying the chromosome name and the base position is required.
+
+```{r position,warning=FALSE}
+win=100000
+step=10000
+result <- positionScore("score","position",win,step)
+ggplot(data = result,aes(x=Start+win/2,y=Score)) + geom_bar(stat = "identity",width = win) + facet_wrap(~Chromosome,ncol=2,scales = "free_x") + xlab("Win Position") + ggtitle(paste0("Win = ",win))+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+```
+
+
+
