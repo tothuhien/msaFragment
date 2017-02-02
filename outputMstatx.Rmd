@@ -31,9 +31,31 @@ If the input sequences contain sites from discontinous positions (e.g snp), then
 ```{r position,warning=FALSE}
 win=100000
 step=10000
-result <- positionScore("score","position",win,step)
-ggplot(data = result,aes(x=Start+win/2,y=Score)) + geom_bar(stat = "identity",width = win) + facet_wrap(~Chromosome,ncol=2,scales = "free_x") + xlab("Win Position") + ggtitle(paste0("Win = ",win))+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+resultD <- positionScore("score_D_jensen.txt","position",win,step)
+ggplot(data = resultD,aes(x=Start+win/2,y=Score)) + geom_bar(stat = "identity",width = win) + facet_wrap(~Chromosome,ncol=2,scales = "free_x") + xlab("Win Position") + ggtitle(paste0("Domestic - Win = ",win))+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+resultW <- positionScore("score_W_jensen.txt","position",win,step)
+ggplot(data = resultW,aes(x=Start+win/2,y=Score)) + geom_bar(stat = "identity",width = win) + facet_wrap(~Chromosome,ncol=2,scales = "free_x") + xlab("Win Position") + ggtitle(paste0("Wild - Win = ",win))+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+resultDiff <- resultD
+resultDiff$Score <- resultW$Score-resultD$Score
+ggplot(data = resultDiff,aes(x=Start+win/2,y=Score)) + geom_bar(stat = "identity",width = win) + facet_wrap(~Chromosome,ncol=2,scales = "free_x") + xlab("Win Position") + ggtitle(paste0("Difference - Win = ",win))+theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 ```
 
+histogram distance
+```{r}
+pos <- read.table("position",header=FALSE)
+colnames(pos) <- c("Chromosome","Position")
+allChromosomes <- unique(pos$Chromosome)
+dis <- c()
+for (chr in allChromosomes){
+  posChr <- dplyr::filter(pos,Chromosome==chr)
+  posChr <- posChr[order(posChr$Position),]
+  distChr <- posChr$Position[2:nrow(posChr)]-posChr$Position[1:(nrow(posChr)-1)]
+  dis <- c(dis,distChr)
+}
+x<-hist(dis,breaks = 1000)
+x$breaks[10]
+```
 
 
